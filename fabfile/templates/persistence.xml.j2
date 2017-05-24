@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+
+    <persistence-unit name="{{ env.project_name }}">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        {% for table in tables %}
+        <class>{{ env.java_package_entity }}.{{ table.class_name }}</class>
+        {% endfor %}
+    </persistence-unit>
+</persistence>
+

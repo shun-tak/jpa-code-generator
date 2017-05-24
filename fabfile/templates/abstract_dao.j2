@@ -1,0 +1,55 @@
+package {{ env.java_package_entity_dao_base }};
+
+import org.hibernate.HibernateException;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import java.util.List;
+import java.util.Objects;
+
+public abstract class AbstractDao<E> {
+    private final EntityManager entityManager;
+    private final Class<?> entityClass;
+
+    AbstractDao(EntityManager entityManager, Class<?> entityClass) {
+        this.entityManager = entityManager;
+        this.entityClass = entityClass;
+    }
+
+    protected EntityManager getEntityManager() {
+        return this.entityManager;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Class<E> getEntityClass() {
+        return (Class<E>) entityClass;
+    }
+
+    protected CriteriaBuilder criteriaBuilder() {
+        return getEntityManager().getCriteriaBuilder();
+    }
+
+    protected CriteriaQuery<E> criteriaQuery() {
+        return criteriaBuilder().createQuery(getEntityClass());
+    }
+
+    protected CriteriaUpdate<E> criteriaUpdate() {
+        return criteriaBuilder().createCriteriaUpdate(getEntityClass());
+    }
+
+    protected CriteriaDelete<E> criteriaDelete() {
+        return criteriaBuilder().createCriteriaDelete(getEntityClass());
+    }
+
+    protected E uniqueResult(CriteriaQuery<E> criteriaQuery) throws HibernateException {
+        return getEntityManager().createQuery(Objects.requireNonNull(criteriaQuery)).getSingleResult();
+    }
+
+    protected List<E> list(CriteriaQuery<E> criteriaQuery) throws HibernateException {
+        return getEntityManager().createQuery(Objects.requireNonNull(criteriaQuery)).getResultList();
+    }
+}
+
