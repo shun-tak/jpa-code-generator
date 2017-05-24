@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*~
+\#*\#
+*.swp
+
+# IntelliJ
+.idea
+*.iml
+*.ipr
+*.iws
+.idea_modules
+atlassian-ide-plugin.xml
+
+# Eclipse
+.project
+.classpath
+.settings
+
+# Build
+out
+build
+bin
+
+# Log
+*.log
+logs
+
+# Documents
+docs
