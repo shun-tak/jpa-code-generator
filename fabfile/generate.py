@@ -144,15 +144,30 @@ def _print_tables(tables):
 
 def _tables_to_files(tables):
     jinja_env = Environment(loader=FileSystemLoader(os.path.join(FAB_DIR, 'templates')), trim_blocks=True, lstrip_blocks=True)
+    settings_gradle = jinja_env.get_template("settings.gradle.j2")
+    build_gradle = jinja_env.get_template("build.gradle.j2")
     persistence_xml = jinja_env.get_template("persistence.xml.j2")
     entity = jinja_env.get_template("entity.j2")
     abstract_dao = jinja_env.get_template("abstract_dao.j2")
     entity_dao = jinja_env.get_template("entity_dao_base.j2")
 
     # Create output dir if not exists
+    local("[ -d {0} ] || mkdir -p {0}".format(env.generated_dir))
     local("[ -d {0} ] || mkdir -p {0}".format(env.persistence_xml_dir))
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dir))
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_base_dir))
+
+    # Generate settings.gradle
+    settings_gradle_path = os.path.join(PROJECT_DIR, env.generated_dir, 'settings.gradle')
+    settings_gradle.stream(
+        env=env
+    ).dump(settings_gradle_path)
+
+    # Generate build.gradle
+    build_gradle_path = os.path.join(PROJECT_DIR, env.generated_dir, 'build.gradle')
+    build_gradle.stream(
+        env=env
+    ).dump(build_gradle_path)
 
     # Generate persistence.xml
     persistence_xml_path = os.path.join(PROJECT_DIR, env.persistence_xml_dir, 'persistence.xml')
