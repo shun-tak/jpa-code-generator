@@ -3,14 +3,15 @@
 Java Persistence code generator, from existing MySQL tables to MySQL Schema, Entity and DAO.
 
 - Reverse engineering existing MySQL tables into MySQL schema file (`fab generate.schema`)
-- Generate Entity and DAO codes from MySQL schema file (`fab generate.entities`)
+- Generate jar package from MySQL schema file (`fab generate.jar`)
+  - which contains Entities, JPA Metamodels and DAOs
 
 This generator is powered by [Python Fabric](http://www.fabfile.org/)
 
 
 ## Dependencies
 
-- MySQL client 5.6 (mysql command)
+- MySQL client 5.6 (`mysqldump` command)
 - Python 2.7
 - fabric
 - jinja2 (Python template module)
@@ -27,21 +28,18 @@ git clone
 Edit `env` in fabfile/\__init\__.py:
 
 ```
+env.project_name = "example-entity"
+
+env.mysql_host = "localhost"
 env.mysql_user = "your_mysql_user_name"
 env.mysql_database = "your_database_name"
 
-env.schema_sql_dir = "src/main/resources/db/"
-env.entity_dir = "src/main/java/path/to/entity"
-env.entity_dao_base_dir = "src/main/java/path/to/entity/dao/base"
+env.schema_sql_dir = env.generated_dir + "/db"
+env.persistence_xml_dir = env.generated_dir + "/src/main/resources/META-INF"
+env.entity_dir = env.generated_dir + "/src/main/java/path/to/entity"
+env.entity_dao_base_dir = env.generated_dir + "/src/main/java/path/to/entity/dao/base"
 env.java_package_entity = "path.to.entity"
 env.java_package_entity_dao_base = "path.to.entity.dao.base"
-```
-
-Create tables (migrate database):
-
-```
-# Run your DB migration tool (Flyway, Liquibase, etc.)
-# or execute DDL (something like CREATE TABLE queries)
 ```
 
 Run schema file generator:
@@ -51,9 +49,9 @@ cd jpa-entity-generator
 fab generate.schema
 ```
 
-Run entity file generator:
+Run jar package generator:
 
 ```
 cd jpa-entity-generator
-fab generate.entities
+fab generate.jar
 ```

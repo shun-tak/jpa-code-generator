@@ -1,5 +1,5 @@
 group '{{ env.java_package_entity }}'
-version '0.0.1-SNAPSHOT'
+version '{{ env.build_version|default('0.0.1-SNAPSHOT') }}'
 
 apply plugin: 'java'
 

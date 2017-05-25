@@ -1,7 +1,6 @@
 # coding:utf-8
-from fabric.api import env
-from fabric.api import local
-from fabric.colors import *
+from fabric.api import env, local, lcd
+from fabric.colors import green
 from fabric.decorators import task
 from jinja2 import Environment, FileSystemLoader
 
@@ -11,7 +10,7 @@ import re
 from Class import *
 
 FAB_DIR = os.path.abspath(os.path.dirname(__file__))
-PROJECT_DIR = os.path.normpath(FAB_DIR + "/../")
+PROJECT_DIR = os.path.normpath(FAB_DIR + '/../')
 SCHEMA_SQL_DIR = ''
 SCHEMA_SQL_PATH = ''
 
@@ -25,28 +24,36 @@ def schema():
 
     # Execute mysqldump
     opts = "-d --compact -Q --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(env.mysql_database)
-    local("mysqldump " + opts + " -h" + env.mysql_host + " -u" + env.mysql_user + " -p " + env.mysql_database + " -r " + SCHEMA_SQL_PATH)
+    local('mysqldump ' + opts + ' -h' + env.mysql_host + ' -u' + env.mysql_user + ' -p ' + env.mysql_database + ' -r ' + SCHEMA_SQL_PATH)
 
     # Reset auto increment counter
     sed_inplace(SCHEMA_SQL_PATH, 'AUTO_INCREMENT=\d* ', '')
 
-    print green("schema.sql has been generated!")
+    print green('schema.sql has been generated!')
 
 
 @task
-def entities():
+def jar(version):
+    env.build_version = version
+    _generate_entities()
+    _java_build()
+    jar_path = os.path.join(env.generated_dir, "build/libs/{0}-{1}.jar".format(env.project_name, version))
+    print green('JAR file has been generated: ') + jar_path
+
+
+def _generate_entities():
     _set_schema_dir()
     tables = _parse_sql()
     _print_tables(tables)
     _tables_to_files(tables)
-    print green("Java files have been generated!")
+    print green('Java files have been generated!')
 
 
 def _set_schema_dir():
     global SCHEMA_SQL_DIR
     global SCHEMA_SQL_PATH
     SCHEMA_SQL_DIR = os.path.join(PROJECT_DIR, env.schema_sql_dir)
-    SCHEMA_SQL_PATH = os.path.join(SCHEMA_SQL_DIR, "schema.sql")
+    SCHEMA_SQL_PATH = os.path.join(SCHEMA_SQL_DIR, 'schema.sql')
 
 
 def _parse_sql():
@@ -125,31 +132,31 @@ def _parse_sql():
 
 def _print_tables(tables):
     for table in tables:
-        print "+", table.get_name()
-        print "  + columns"
+        print '+', table.get_name()
+        print '  + columns'
         for column in table.get_columns():
-            print "    -",
+            print '    -',
             print column.get_name(),
             print column.get_type(),
             print column.get_null(),
             print column.get_default(),
             print column.get_auto_increment()
 
-        print "  + indices"
+        print '  + indices'
         for index in table.get_indices():
-            print "    *",
+            print '    *',
             print index.get_type(),
             print index.get_column_names()
 
 
 def _tables_to_files(tables):
     jinja_env = Environment(loader=FileSystemLoader(os.path.join(FAB_DIR, 'templates')), trim_blocks=True, lstrip_blocks=True)
-    settings_gradle = jinja_env.get_template("settings.gradle.j2")
-    build_gradle = jinja_env.get_template("build.gradle.j2")
-    persistence_xml = jinja_env.get_template("persistence.xml.j2")
-    entity = jinja_env.get_template("entity.j2")
-    abstract_dao = jinja_env.get_template("abstract_dao.j2")
-    entity_dao = jinja_env.get_template("entity_dao_base.j2")
+    settings_gradle = jinja_env.get_template('settings.gradle.j2')
+    build_gradle = jinja_env.get_template('build.gradle.j2')
+    persistence_xml = jinja_env.get_template('persistence.xml.j2')
+    entity = jinja_env.get_template('entity.j2')
+    abstract_dao = jinja_env.get_template('abstract_dao.j2')
+    entity_dao = jinja_env.get_template('entity_dao_base.j2')
 
     # Create output dir if not exists
     local("[ -d {0} ] || mkdir -p {0}".format(env.generated_dir))
@@ -199,3 +206,9 @@ def _tables_to_files(tables):
             env=env,
             table=table
         ).dump(entity_dao_path)
+
+
+def _java_build():
+    build_dir = os.path.join(PROJECT_DIR, env.generated_dir)
+    with lcd(build_dir):
+        local('./gradlew clean build')
