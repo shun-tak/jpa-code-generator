@@ -17,28 +17,30 @@ SCHEMA_SQL_PATH = ''
 
 @task
 def schema():
-    _set_schema_dir()
+    with lcd(PROJECT_DIR):
+        _set_schema_dir()
 
-    # Create output dir if not exists
-    local("[ -d {0} ] || mkdir -p {0}".format(SCHEMA_SQL_DIR))
+        # Create output dir if not exists
+        local("[ -d {0} ] || mkdir -p {0}".format(SCHEMA_SQL_DIR))
 
-    # Execute mysqldump
-    opts = "-d --compact -Q --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(env.mysql_database)
-    local('mysqldump ' + opts + ' -h' + env.mysql_host + ' -u' + env.mysql_user + ' -p ' + env.mysql_database + ' -r ' + SCHEMA_SQL_PATH)
+        # Execute mysqldump
+        opts = "-d --compact -Q --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(env.mysql_database)
+        local('mysqldump ' + opts + ' -h' + env.mysql_host + ' -u' + env.mysql_user + ' -p ' + env.mysql_database + ' -r ' + SCHEMA_SQL_PATH)
 
-    # Reset auto increment counter
-    sed_inplace(SCHEMA_SQL_PATH, 'AUTO_INCREMENT=\d* ', '')
+        # Reset auto increment counter
+        sed_inplace(SCHEMA_SQL_PATH, 'AUTO_INCREMENT=\d* ', '')
 
-    print green('schema.sql has been generated!')
+        print green('schema.sql has been generated!')
 
 
 @task
 def jar(version):
-    env.build_version = version
-    _generate_entities()
-    _java_build()
-    jar_path = os.path.join(env.generated_dir, "build/libs/{0}-{1}.jar".format(env.project_name, version))
-    print green('JAR file has been generated: ') + jar_path
+    with lcd(PROJECT_DIR):
+        env.build_version = version
+        _generate_entities()
+        _java_build()
+        jar_path = os.path.join(env.generated_dir, "build/libs/{0}-{1}.jar".format(env.project_name, version))
+        print green('JAR file has been generated: ') + jar_path
 
 
 def _generate_entities():
