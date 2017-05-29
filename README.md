@@ -49,9 +49,11 @@ cd jpa-entity-generator
 fab generate.schema
 ```
 
-Run jar package generator:
+Run jar package generator with your build version:
 
 ```
 cd jpa-entity-generator
-fab generate.jar
+fab generate.jar:<version>
 ```
+
+e.g. `fab generate.jar:1.0.0-SNAPSHOT`
