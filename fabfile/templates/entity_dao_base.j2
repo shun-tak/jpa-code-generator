@@ -51,7 +51,8 @@ public class {{ table.class_name }}BaseDao extends AbstractDao<{{ table.class_na
         Root<{{ table.class_name }}> root = query.from(getEntityClass());
         query.select(root)
                 {% for column in index.columns %}
-                .where(criteriaBuilder().equal(root.get({{ table.class_name }}_.{{ column.field_name }}), {{ column.field_name }}));
+                .where(criteriaBuilder().equal(root.get({{ table.class_name }}_.{{ column.field_name }}), {{ column.field_name }})){% if loop.last %};{% endif %}
+
                 {% endfor %}
         return uniqueResult(query);
     }
