@@ -38,6 +38,26 @@ class Table:
                 return column
         return None
 
+    def get_primary_key(self):
+        for index in self.indices:
+            if index.get_type() == "PRIMARY KEY":
+                return index
+
+        return None
+
+    def is_primary_key(self, _column):
+        index = self.get_primary_key()
+        if index:
+            for column_name in index.get_column_names():
+                if _column.get_name() == column_name:
+                    return True
+
+        return False
+
+    def has_composite_primary_keys(self):
+        index = self.get_primary_key()
+        return index and len(index.get_columns()) > 1
+
 
 class Index:
     def __init__(self, _type):
@@ -88,6 +108,8 @@ class Column:
         if _auto_increment:
             self.auto_increment = _auto_increment
 
+        self.primary_key = False
+
     def get_name(self):
         return self.name
 
@@ -102,6 +124,12 @@ class Column:
 
     def get_auto_increment(self):
         return self.auto_increment
+
+    def is_primary_key(self):
+        return self.primary_key
+
+    def set_primary_key(self, _primary_key):
+        self.primary_key = _primary_key
 
 
 def _convert_to_java_type(_type):
