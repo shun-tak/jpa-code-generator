@@ -8,6 +8,8 @@ Java Persistence code generator, from existing MySQL tables to MySQL Schema, Ent
 
 This generator is powered by [Python Fabric](http://www.fabfile.org/)
 
+Generated codes are depend on Hibernate implementation for now.
+
 
 ## Dependencies
 
