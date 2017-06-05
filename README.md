@@ -11,6 +11,8 @@ This generator is powered by [Python Fabric](http://www.fabfile.org/)
 
 ## Dependencies
 
+Dependencies for this generator, not for generated sources.
+
 - MySQL client 5.6 (`mysqldump` command)
 - Python 2.7
 - fabric
