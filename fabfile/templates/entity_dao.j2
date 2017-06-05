@@ -50,10 +50,17 @@ public class {{ table.class_name }}Dao extends AbstractDao<{{ table.class_name }
         CriteriaQuery<{{ table.class_name }}> query = criteriaQuery();
         Root<{{ table.class_name }}> root = query.from(getEntityClass());
         query.select(root)
-                {% for column in index.columns %}
-                .where(criteriaBuilder().equal(root.get({{ table.class_name }}_.{{ column.field_name }}), {{ column.field_name }})){% if loop.last %};{% endif %}
+                {% if index.columns|length == 1 %}
+                .where(criteriaBuilder().equal(root.get({{ table.class_name }}_.{{ index.columns[0].field_name }}), {{ index.columns[0].field_name }}));
+                {% else %}
+                {# Composite keys #}
+                .where(criteriaBuilder().and(
+                    {% for column in index.columns %}
+                    criteriaBuilder().equal(root.get({{ table.class_name }}_.{{ column.field_name }}), {{ column.field_name }}){% if not loop.last %}, {% endif %}
 
-                {% endfor %}
+                    {% endfor %}
+                ));
+                {% endif %}
         return uniqueResult(query);
     }
     {% else %}
