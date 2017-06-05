@@ -16,10 +16,13 @@ import javax.validation.constraints.*;
 @Getter
 @Setter
 @Entity
+{% if table.has_composite_primary_keys() %}
+@IdClass({{ table.class_name }}.PK.class)
+{% endif %}
 @Table(name = "{{ table.name }}")
 public class {{ table.class_name }} {
     {% for column in table.columns %}
-    {% if column.name == "id" %}
+    {% if table.is_primary_key(column) %}
     @Id
     {% endif %}
     @Column(name = "{{ column.name }}")
@@ -44,5 +47,15 @@ public class {{ table.class_name }} {
     private {{ column.field_type }} {{ column.field_name }};
 
     {% endfor %}
+    {% if table.has_composite_primary_keys() %}
+    @Embeddable
+    public static class PK {
+        {% for column in table.get_primary_key().get_columns() %}
+        @Column(name = "{{ column.name }}")
+        private {{ column.field_type }} {{ column.field_name }};
+
+        {% endfor %}
+    }
+    {% endif %}
 }
 
