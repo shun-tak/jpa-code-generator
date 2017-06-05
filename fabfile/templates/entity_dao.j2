@@ -1,4 +1,4 @@
-package {{ env.java_package_entity_dao_base }};
+package {{ env.java_package_entity_dao }};
 
 import {{ env.java_package_entity }}.{{ table.class_name }};
 import {{ env.java_package_entity }}.{{ table.class_name }}_;
@@ -9,8 +9,8 @@ import org.joda.time.DateTime;
 
 import java.util.List;
 
-public class {{ table.class_name }}BaseDao extends AbstractDao<{{ table.class_name }}> {
-    protected {{ table.class_name }}BaseDao(EntityManager entityManager) {
+public class {{ table.class_name }}Dao extends AbstractDao<{{ table.class_name }}> {
+    protected {{ table.class_name }}Dao(EntityManager entityManager) {
         super(entityManager, {{ table.class_name }}.class);
     }
 

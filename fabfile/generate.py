@@ -23,8 +23,8 @@ def clean():
 
         # Clean python fabric
         _set_schema_dir()
-        local('rm -rf ' + os.path.join(PROJECT_DIR, env.generated_dir, 'db'))
-        local('rm -rf ' + os.path.join(PROJECT_DIR, env.generated_dir, 'src'))
+        local('rm -rf ' + os.path.join(PROJECT_DIR, env.schema_sql_dir))
+        local('rm -rf ' + os.path.join(PROJECT_DIR, env.source_dir))
         local('rm ' + os.path.join(PROJECT_DIR, env.generated_dir, '*.gradle'))
 
 
@@ -171,13 +171,13 @@ def _tables_to_files(tables):
     persistence_xml = jinja_env.get_template('persistence.xml.j2')
     entity = jinja_env.get_template('entity.j2')
     abstract_dao = jinja_env.get_template('abstract_dao.j2')
-    entity_dao = jinja_env.get_template('entity_dao_base.j2')
+    entity_dao = jinja_env.get_template('entity_dao.j2')
 
     # Create output dir if not exists
     local("[ -d {0} ] || mkdir -p {0}".format(env.generated_dir))
     local("[ -d {0} ] || mkdir -p {0}".format(env.persistence_xml_dir))
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dir))
-    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_base_dir))
+    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_dir))
 
     # Generate settings.gradle
     settings_gradle_path = os.path.join(PROJECT_DIR, env.generated_dir, 'settings.gradle')
@@ -208,7 +208,7 @@ def _tables_to_files(tables):
 
     # Generate AbstractDao.java
     for table in tables:
-        abstract_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_base_dir, 'AbstractDao.java')
+        abstract_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, 'AbstractDao.java')
         abstract_dao.stream(
             env=env,
             table=table
@@ -216,7 +216,7 @@ def _tables_to_files(tables):
 
     # Generate EntityDao.java
     for table in tables:
-        entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_base_dir, table.get_class_name() + 'BaseDao.java')
+        entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, table.get_class_name() + 'Dao.java')
         entity_dao.stream(
             env=env,
             table=table

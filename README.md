@@ -30,18 +30,16 @@ git clone
 Edit `env` in fabfile/\__init\__.py:
 
 ```
-env.project_name = "example-entity"
+env.project_name = 'example-entity'
 
-env.mysql_host = "localhost"
-env.mysql_user = "your_mysql_user_name"
-env.mysql_database = "your_database_name"
+env.mysql_host = 'localhost'
+env.mysql_user = 'your_mysql_user_name'
+env.mysql_database = 'your_database_name'
 
-env.schema_sql_dir = env.generated_dir + "/db"
-env.persistence_xml_dir = env.generated_dir + "/src/main/resources/META-INF"
-env.entity_dir = env.generated_dir + "/src/main/java/path/to/entity"
-env.entity_dao_base_dir = env.generated_dir + "/src/main/java/path/to/entity/dao/base"
-env.java_package_entity = "path.to.entity"
-env.java_package_entity_dao_base = "path.to.entity.dao.base"
+env.entity_dir = env.java_source_dir + '/example/project/entity'
+env.entity_dao_dir = env.java_source_dir + '/example/project/entity/dao'
+env.java_package_entity = 'example.project.entity'
+env.java_package_entity_dao = 'example.project.entity.dao'
 ```
 
 Run schema file generator:
