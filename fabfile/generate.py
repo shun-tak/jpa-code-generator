@@ -16,6 +16,19 @@ SCHEMA_SQL_PATH = ''
 
 
 @task
+def clean():
+    with lcd(PROJECT_DIR):
+        # Clean java
+        _java_clean()
+
+        # Clean python fabric
+        _set_schema_dir()
+        local('rm -rf ' + os.path.join(PROJECT_DIR, env.generated_dir, 'db'))
+        local('rm -rf ' + os.path.join(PROJECT_DIR, env.generated_dir, 'src'))
+        local('rm ' + os.path.join(PROJECT_DIR, env.generated_dir, '*.gradle'))
+
+
+@task
 def schema():
     with lcd(PROJECT_DIR):
         _set_schema_dir()
@@ -214,3 +227,9 @@ def _java_build():
     build_dir = os.path.join(PROJECT_DIR, env.generated_dir)
     with lcd(build_dir):
         local('./gradlew clean build')
+
+
+def _java_clean():
+    build_dir = os.path.join(PROJECT_DIR, env.generated_dir)
+    with lcd(build_dir):
+        local('./gradlew clean')
