@@ -1,14 +1,22 @@
-# JPA entity generator
+# JPA code generator
 
-Java Persistence code generator, from existing MySQL tables to MySQL Schema, Entity and DAO.
+Java Persistence code generator, working with supplied MySQL database.
 
-- Reverse engineering existing MySQL tables into MySQL schema file (`fab generate.schema`)
-- Generate jar package from MySQL schema file (`fab generate.jar`)
-  - which contains Entities, JPA Metamodels and DAOs
+JPA code generator generates following:
+- a JPA configuration file (persistence.xml)
+- JPA annotated model classes (Entity)
+- JPA Static Metamodel classes (_Entity)
+- Basic DAO classes (EntityDao)
+- a JAR file which contains config and classes above
 
-This generator is powered by [Python Fabric](http://www.fabfile.org/)
+There are 2 commands following:
+- `fab generate.schema`
+  - reverse engineering existing MySQL tables into a schema file (schema.sql)
+  - requires MySQL connection with `mysqldump` command
+- `fab generate.jar`
+  - generate a JAR file from schema.sql
 
-Generated codes are depend on Hibernate implementation for now.
+Generated codes are dependent on Hibernate ORM implementation for now.
 
 
 ## Dependencies
@@ -23,11 +31,7 @@ Dependencies for this generator, not for generated sources.
 
 ## Usage
 
-Clone this repo:
-
-```
-git clone
-```
+Fork or clone this repo.
 
 Edit `env` in fabfile/\__init\__.py:
 
@@ -47,14 +51,12 @@ env.java_package_entity_dao = 'example.project.entity.dao'
 Run schema file generator:
 
 ```
-cd jpa-entity-generator
 fab generate.schema
 ```
 
-Run jar package generator with your build version:
+Run jar file generator with your build version:
 
 ```
-cd jpa-entity-generator
 fab generate.jar:<version>
 ```
 
