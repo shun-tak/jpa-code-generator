@@ -181,6 +181,7 @@ def _tables_to_files(tables):
     entity = jinja_env.get_template('entity.j2')
     abstract_dao = jinja_env.get_template('abstract_dao.j2')
     abstract_entity_dao = jinja_env.get_template('abstract_entity_dao.j2')
+    entity_dao = jinja_env.get_template('entity_dao.j2')
 
     # Create output dir if not exists
     local("[ -d {0} ] || mkdir -p {0}".format(env.generated_dir))
@@ -239,6 +240,17 @@ def _tables_to_files(tables):
             env=env,
             table=table
         ).dump(abstract_entity_dao_path)
+
+    # Generate EntityDao.java
+    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_ext_dir))
+    for table in tables:
+        entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_ext_dir, table.get_class_name() + 'Dao.java')
+        # Prevent overwriting extension class
+        if not os.path.isfile(entity_dao_path):
+            entity_dao.stream(
+                env=env,
+                table=table
+            ).dump(entity_dao_path)
 
 
 def _java_build():
