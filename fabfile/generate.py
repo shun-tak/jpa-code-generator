@@ -218,10 +218,12 @@ def _tables_to_files(tables):
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_ext_dir))
     for table in tables:
         entity_ext_path = os.path.join(PROJECT_DIR, env.entity_ext_dir, table.get_class_name() + '.java')
-        entity.stream(
-            env=env,
-            table=table
-        ).dump(entity_ext_path)
+        # Prevent overwriting extension class
+        if not os.path.isfile(entity_ext_path):
+            entity.stream(
+                env=env,
+                table=table
+            ).dump(entity_ext_path)
 
     # Generate AbstractDao.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_dir))
