@@ -169,15 +169,13 @@ def _tables_to_files(tables):
     settings_gradle = jinja_env.get_template('settings.gradle.j2')
     build_gradle = jinja_env.get_template('build.gradle.j2')
     persistence_xml = jinja_env.get_template('persistence.xml.j2')
+    abstract_entity = jinja_env.get_template('abstract_entity.j2')
     entity = jinja_env.get_template('entity.j2')
     abstract_dao = jinja_env.get_template('abstract_dao.j2')
     abstract_entity_dao = jinja_env.get_template('abstract_entity_dao.j2')
 
     # Create output dir if not exists
     local("[ -d {0} ] || mkdir -p {0}".format(env.generated_dir))
-    local("[ -d {0} ] || mkdir -p {0}".format(env.persistence_xml_dir))
-    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dir))
-    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_dir))
 
     # Generate settings.gradle
     settings_gradle_path = os.path.join(PROJECT_DIR, env.generated_dir, 'settings.gradle')
@@ -192,29 +190,39 @@ def _tables_to_files(tables):
     ).dump(build_gradle_path)
 
     # Generate persistence.xml
+    local("[ -d {0} ] || mkdir -p {0}".format(env.persistence_xml_dir))
     persistence_xml_path = os.path.join(PROJECT_DIR, env.persistence_xml_dir, 'persistence.xml')
     persistence_xml.stream(
         env=env,
         tables=tables
     ).dump(persistence_xml_path)
 
-    # Generate Entity.java
+    # Generate AbstractEntity.java
+    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dir))
     for table in tables:
-        entity_path = os.path.join(PROJECT_DIR, env.entity_dir, table.get_class_name() + '.java')
+        abstract_entity_path = os.path.join(PROJECT_DIR, env.entity_dir, 'Abstract' + table.get_class_name() + '.java')
+        abstract_entity.stream(
+            env=env,
+            table=table
+        ).dump(abstract_entity_path)
+
+    # Generate Entity.java
+    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_ext_dir))
+    for table in tables:
+        entity_ext_path = os.path.join(PROJECT_DIR, env.entity_ext_dir, table.get_class_name() + '.java')
         entity.stream(
             env=env,
             table=table
-        ).dump(entity_path)
+        ).dump(entity_ext_path)
 
     # Generate AbstractDao.java
-    for table in tables:
-        abstract_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, 'AbstractDao.java')
-        abstract_dao.stream(
-            env=env,
-            table=table
-        ).dump(abstract_dao_path)
+    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_dir))
+    abstract_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, 'AbstractDao.java')
+    abstract_dao.stream(
+        env=env
+    ).dump(abstract_dao_path)
 
-    # Generate EntityDao.java
+    # Generate AbstractEntityDao.java
     for table in tables:
         abstract_entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, 'Abstract' + table.get_class_name() + 'Dao.java')
         abstract_entity_dao.stream(

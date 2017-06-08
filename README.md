@@ -42,10 +42,8 @@ env.mysql_host = 'localhost'
 env.mysql_user = 'your_mysql_user_name'
 env.mysql_database = 'your_database_name'
 
-env.entity_dir = env.java_source_dir + '/example/project/entity'
-env.entity_dao_dir = env.java_source_dir + '/example/project/entity/dao'
-env.java_package_entity = 'example.project.entity'
-env.java_package_entity_dao = 'example.project.entity.dao'
+_project_dir = 'example/project'
+_project_package = 'example.project'
 ```
 
 Run schema file generator:
