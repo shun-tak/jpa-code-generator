@@ -52,10 +52,16 @@ Run schema file generator:
 fab generate.schema
 ```
 
-Run jar file generator with your build version:
+Run java files generator with your build version:
 
 ```
-fab generate.jar:<version>
+fab generate.code:<version>
 ```
 
-e.g. `fab generate.jar:1.0.0-SNAPSHOT`
+e.g. `fab generate.code:1.0.0-SNAPSHOT`
+
+Run jar file generator:
+
+```
+fab generate.jar
+```
