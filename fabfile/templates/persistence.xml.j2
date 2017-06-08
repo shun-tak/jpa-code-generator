@@ -4,7 +4,7 @@
     <persistence-unit name="{{ env.project_name }}">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         {% for table in tables %}
-        <class>{{ env.java_package_entity }}.{{ table.class_name }}</class>
+        <class>{{ env.java_package_entity_ext }}.{{ table.class_name }}</class>
         {% endfor %}
     </persistence-unit>
 </persistence>
