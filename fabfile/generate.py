@@ -23,9 +23,11 @@ def clean():
 
         # Clean python fabric
         _set_schema_dir()
-        local('rm -rf ' + os.path.join(PROJECT_DIR, env.schema_sql_dir))
-        local('rm -rf ' + os.path.join(PROJECT_DIR, env.source_dir))
-        local('rm ' + os.path.join(PROJECT_DIR, env.generated_dir, '*.gradle'))
+        local('rm -f ' + env.schema_sql_dir + '/schema.sql')
+        local('rm -f ' + env.generated_dir + '/*.gradle')
+        local('rm -f ' + env.persistence_xml_dir + '/*.xml')
+        local('rm -f ' + env.entity_dir + '/Abstract*.java')
+        local('rm -f ' + env.entity_dao_dir + '/Abstract*Dao.java')
 
 
 @task
@@ -240,4 +242,5 @@ def _java_build():
 def _java_clean():
     build_dir = os.path.join(PROJECT_DIR, env.generated_dir)
     with lcd(build_dir):
-        local('./gradlew clean')
+        if os.path.isfile('./gradlew'):
+            local('./gradlew clean')
