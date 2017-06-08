@@ -49,13 +49,20 @@ def schema():
 
 
 @task
-def jar(version):
+def code(version):
     with lcd(PROJECT_DIR):
         env.build_version = version
         _generate_entities()
+        print green('Java files have been generated!')
+
+
+@task
+def jar():
+    with lcd(PROJECT_DIR):
         _java_build()
-        jar_path = os.path.join(env.generated_dir, "build/libs/{0}-{1}.jar".format(env.project_name, version))
-        print green('JAR file has been generated: ') + jar_path
+        print green('JAR file has been generated:')
+        jar_path = os.path.join(env.generated_dir, "build/libs/{0}-*.jar".format(env.project_name))
+        local('ls ' + jar_path)
 
 
 def _generate_entities():
@@ -63,7 +70,6 @@ def _generate_entities():
     tables = _parse_sql()
     _print_tables(tables)
     _tables_to_files(tables)
-    print green('Java files have been generated!')
 
 
 def _set_schema_dir():
