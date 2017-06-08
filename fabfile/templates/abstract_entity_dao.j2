@@ -9,8 +9,8 @@ import org.joda.time.DateTime;
 
 import java.util.List;
 
-public class {{ table.class_name }}Dao extends AbstractDao<{{ table.class_name }}> {
-    protected {{ table.class_name }}Dao(EntityManager entityManager) {
+public abstract class Abstract{{ table.class_name }}Dao extends AbstractDao<{{ table.class_name }}> {
+    protected Abstract{{ table.class_name }}Dao(EntityManager entityManager) {
         super(entityManager, {{ table.class_name }}.class);
     }
 
