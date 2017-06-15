@@ -9,12 +9,16 @@ JPA code generator generates following:
 - Basic DAO classes (EntityDao)
 - a JAR file which contains config and classes above
 
-There are 2 commands following:
+You can see available commands with `fab -l`:
 - `fab generate.schema`
   - reverse engineering existing MySQL tables into a schema file (schema.sql)
   - requires MySQL connection with `mysqldump` command
+- `fab generate.code:<version>`
+  - generate java codes from schema.sql
 - `fab generate.jar`
-  - generate a JAR file from schema.sql
+  - generate a JAR file from generated java codes
+- `fab generate.clean`
+  - remove schema.sql and java codes excluding gap codes (extension classes)
 
 Generated codes are dependent on Hibernate ORM implementation for now.
 
