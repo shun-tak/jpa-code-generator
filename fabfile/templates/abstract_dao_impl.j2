@@ -1,0 +1,56 @@
+package {{ env.java_package_entity_dao_impl }};
+
+import {{ env.java_package_entity_dao }}.AbstractDao;
+import org.hibernate.HibernateException;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import java.util.List;
+import java.util.Objects;
+
+public abstract class AbstractDaoImpl<E> implements AbstractDao<E> {
+    private final EntityManager entityManager;
+    private final Class<?> entityClass;
+
+    protected AbstractDaoImpl(EntityManager entityManager, Class<?> entityClass) {
+        this.entityManager = entityManager;
+        this.entityClass = entityClass;
+    }
+
+    protected EntityManager getEntityManager() {
+        return this.entityManager;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Class<E> getEntityClass() {
+        return (Class<E>) entityClass;
+    }
+
+    public CriteriaBuilder criteriaBuilder() {
+        return getEntityManager().getCriteriaBuilder();
+    }
+
+    public CriteriaQuery<E> criteriaQuery() {
+        return criteriaBuilder().createQuery(getEntityClass());
+    }
+
+    public CriteriaUpdate<E> criteriaUpdate() {
+        return criteriaBuilder().createCriteriaUpdate(getEntityClass());
+    }
+
+    public CriteriaDelete<E> criteriaDelete() {
+        return criteriaBuilder().createCriteriaDelete(getEntityClass());
+    }
+
+    public E uniqueResult(CriteriaQuery<E> criteriaQuery) throws HibernateException {
+        return getEntityManager().createQuery(Objects.requireNonNull(criteriaQuery)).getSingleResult();
+    }
+
+    public List<E> list(CriteriaQuery<E> criteriaQuery) throws HibernateException {
+        return getEntityManager().createQuery(Objects.requireNonNull(criteriaQuery)).getResultList();
+    }
+}
+

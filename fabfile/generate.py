@@ -180,8 +180,11 @@ def _tables_to_files(tables):
     abstract_entity = jinja_env.get_template('abstract_entity.j2')
     entity = jinja_env.get_template('entity.j2')
     abstract_dao = jinja_env.get_template('abstract_dao.j2')
+    abstract_dao_impl = jinja_env.get_template('abstract_dao_impl.j2')
     abstract_entity_dao = jinja_env.get_template('abstract_entity_dao.j2')
+    abstract_entity_dao_impl = jinja_env.get_template('abstract_entity_dao_impl.j2')
     entity_dao = jinja_env.get_template('entity_dao.j2')
+    entity_dao_impl = jinja_env.get_template('entity_dao_impl.j2')
 
     # Create output dir if not exists
     local("[ -d {0} ] || mkdir -p {0}".format(env.generated_dir))
@@ -233,6 +236,13 @@ def _tables_to_files(tables):
         env=env
     ).dump(abstract_dao_path)
 
+    # Generate AbstractDaoImpl.java
+    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_impl_dir))
+    abstract_dao_impl_path = os.path.join(PROJECT_DIR, env.entity_dao_impl_dir, 'AbstractDaoImpl.java')
+    abstract_dao_impl.stream(
+        env=env
+    ).dump(abstract_dao_impl_path)
+
     # Generate AbstractEntityDao.java
     for table in tables:
         abstract_entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, 'Abstract' + table.get_class_name() + 'Dao.java')
@@ -240,6 +250,14 @@ def _tables_to_files(tables):
             env=env,
             table=table
         ).dump(abstract_entity_dao_path)
+
+    # Generate AbstractEntityDaoImpl.java
+    for table in tables:
+        abstract_entity_dao_impl_path = os.path.join(PROJECT_DIR, env.entity_dao_impl_dir, 'Abstract' + table.get_class_name() + 'DaoImpl.java')
+        abstract_entity_dao_impl.stream(
+            env=env,
+            table=table
+        ).dump(abstract_entity_dao_impl_path)
 
     # Generate EntityDao.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_ext_dir))
@@ -251,6 +269,17 @@ def _tables_to_files(tables):
                 env=env,
                 table=table
             ).dump(entity_dao_path)
+
+    # Generate EntityDaoImpl.java
+    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_ext_impl_dir))
+    for table in tables:
+        entity_dao_impl_path = os.path.join(PROJECT_DIR, env.entity_dao_ext_impl_dir, table.get_class_name() + 'DaoImpl.java')
+        # Prevent overwriting extension class
+        if not os.path.isfile(entity_dao_impl_path):
+            entity_dao_impl.stream(
+                env=env,
+                table=table
+            ).dump(entity_dao_impl_path)
 
 
 def _java_build():

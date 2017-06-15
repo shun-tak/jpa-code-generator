@@ -2,54 +2,25 @@ package {{ env.java_package_entity_dao }};
 
 import org.hibernate.HibernateException;
 
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import java.util.List;
-import java.util.Objects;
 
-public abstract class AbstractDao<E> {
-    private final EntityManager entityManager;
-    private final Class<?> entityClass;
+public interface AbstractDao<E> {
+    Class<E> getEntityClass();
 
-    AbstractDao(EntityManager entityManager, Class<?> entityClass) {
-        this.entityManager = entityManager;
-        this.entityClass = entityClass;
-    }
+    CriteriaBuilder criteriaBuilder();
 
-    protected EntityManager getEntityManager() {
-        return this.entityManager;
-    }
+    CriteriaQuery<E> criteriaQuery();
 
-    @SuppressWarnings("unchecked")
-    protected Class<E> getEntityClass() {
-        return (Class<E>) entityClass;
-    }
+    CriteriaUpdate<E> criteriaUpdate();
 
-    protected CriteriaBuilder criteriaBuilder() {
-        return getEntityManager().getCriteriaBuilder();
-    }
+    CriteriaDelete<E> criteriaDelete();
 
-    protected CriteriaQuery<E> criteriaQuery() {
-        return criteriaBuilder().createQuery(getEntityClass());
-    }
+    E uniqueResult(CriteriaQuery<E> criteriaQuery) throws HibernateException;
 
-    protected CriteriaUpdate<E> criteriaUpdate() {
-        return criteriaBuilder().createCriteriaUpdate(getEntityClass());
-    }
-
-    protected CriteriaDelete<E> criteriaDelete() {
-        return criteriaBuilder().createCriteriaDelete(getEntityClass());
-    }
-
-    protected E uniqueResult(CriteriaQuery<E> criteriaQuery) throws HibernateException {
-        return getEntityManager().createQuery(Objects.requireNonNull(criteriaQuery)).getSingleResult();
-    }
-
-    protected List<E> list(CriteriaQuery<E> criteriaQuery) throws HibernateException {
-        return getEntityManager().createQuery(Objects.requireNonNull(criteriaQuery)).getResultList();
-    }
+    List<E> list(CriteriaQuery<E> criteriaQuery) throws HibernateException;
 }
 

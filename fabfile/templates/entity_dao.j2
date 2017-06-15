@@ -1,11 +1,7 @@
 package {{ env.java_package_entity_dao_ext }};
 
 import {{ env.java_package_entity_dao }}.Abstract{{ table.class_name }}Dao;
-import javax.persistence.EntityManager;
 
-public class {{ table.class_name }}Dao extends Abstract{{ table.class_name }}Dao {
-    public {{ table.class_name }}Dao(EntityManager entityManager) {
-        super(entityManager);
-    }
+public interface {{ table.class_name }}Dao extends Abstract{{ table.class_name }}Dao {
 }
 
