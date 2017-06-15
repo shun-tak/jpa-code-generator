@@ -28,6 +28,7 @@ def clean():
         local('rm -f ' + env.persistence_xml_dir + '/*.xml')
         local('rm -f ' + env.entity_dir + '/Abstract*.java')
         local('rm -f ' + env.entity_dao_dir + '/Abstract*Dao.java')
+        local('rm -f ' + env.entity_dao_impl_dir + '/Abstract*DaoImpl.java')
 
 
 @task
