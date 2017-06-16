@@ -9,6 +9,8 @@ JPA code generator generates following:
 - Basic DAO classes (EntityDao)
 - a JAR file which contains config and classes above
 
+[Example generated codes](https://github.com/shun-tak/jpa-code-generator-example)
+
 You can see available commands with `fab -l`:
 - `fab generate.schema`
   - reverse engineering existing MySQL tables into a schema file (schema.sql)
@@ -40,6 +42,7 @@ Fork or clone this repo.
 Edit `env` in fabfile/\__init\__.py:
 
 ```
+env.generated_dir = 'generated'
 env.project_name = 'example-entity'
 
 env.mysql_host = 'localhost'
