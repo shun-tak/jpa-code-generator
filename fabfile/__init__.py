@@ -4,14 +4,9 @@ from fabric.api import env
 import os
 import generate
 
-env.generated_dir = 'generated'
-env.schema_sql_dir = env.generated_dir + '/db'
-env.source_dir = env.generated_dir + '/src'
-env.persistence_xml_dir = env.source_dir + '/main/resources/META-INF'
-env.java_source_dir = env.source_dir + '/main/java'
-
 # Please edit following strings (inside '')
 
+env.generated_dir = 'generated'
 env.project_name = 'example-entity'
 
 env.mysql_host = 'localhost'
@@ -22,6 +17,11 @@ _project_dir = 'example/project'
 _project_package = 'example.project'
 
 # Please edit above strings (inside '')
+
+env.schema_sql_dir = env.generated_dir + '/db'
+env.source_dir = env.generated_dir + '/src'
+env.persistence_xml_dir = env.source_dir + '/main/resources/META-INF'
+env.java_source_dir = env.source_dir + '/main/java'
 
 env.entity_dir = os.path.join(env.java_source_dir, _project_dir, 'entity')
 env.entity_dao_dir = os.path.join(env.java_source_dir, _project_dir, 'entity/dao')
