@@ -86,6 +86,12 @@ class Index:
             combined_name += column.pascal_name
         return combined_name
 
+    def is_composite_pk(self):
+        if self.type != "PRIMARY KEY":
+            return False
+
+        return len(self.columns) > 1
+
 
 class Column:
     def __init__(self, _name, _type, _null=None, _default=None, _auto_increment=None):

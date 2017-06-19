@@ -1,5 +1,6 @@
 package {{ env.java_package_entity_dao_impl }};
 
+import {{ env.java_package_entity }}.Abstract{{ table.class_name }};
 import {{ env.java_package_entity_dao }}.Abstract{{ table.class_name }}Dao;
 import {{ env.java_package_entity_ext }}.{{ table.class_name }};
 import {{ env.java_package_entity_ext }}.{{ table.class_name }}_;
@@ -10,6 +11,7 @@ import javax.persistence.criteria.Root;
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {{ table.class_name }} DAO base class.
@@ -17,10 +19,21 @@ import java.util.List;
  */
 @javax.annotation.Generated(value = "JPACodeGenerator")
 public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoImpl<{{ table.class_name }}> implements Abstract{{ table.class_name }}Dao {
-    protected Abstract{{ table.class_name }}DaoImpl(EntityManager entityManager) {
-        super(entityManager, {{ table.class_name }}.class);
+    protected Abstract{{ table.class_name }}DaoImpl() {
+        super({{ table.class_name }}.class);
     }
 
+    protected Abstract{{ table.class_name }}DaoImpl(EntityManager entityManager) {
+        super({{ table.class_name }}.class, entityManager);
+    }
+
+    @Override
+    public {{ table.class_name }} create({{ table.class_name }} {{ table.camel_name }}) {
+        getEntityManager().persist({{ table.camel_name }});
+        return {{ table.camel_name }};
+    }
+
+    @Override
     public {{ table.class_name }} create({% for column in table.no_default_columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
         {{ table.class_name }} {{ table.camel_name }} = {{ table.class_name }}
                 .builder()
@@ -38,12 +51,10 @@ public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoI
                 {% endif %}
                 {% endfor %}
                 .build();
-        getEntityManager().getTransaction().begin();
-        getEntityManager().persist({{ table.camel_name }});
-        getEntityManager().getTransaction().commit();
-        return {{ table.camel_name }};
+        return create({{ table.camel_name }});
     }
 
+    @Override
     public List<{{ table.class_name }}> findAll() {
         CriteriaQuery<{{ table.class_name }}> query = criteriaQuery();
         Root<{{ table.class_name }}> root = query.from(getEntityClass());
@@ -51,8 +62,16 @@ public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoI
         return list(query);
     }
     {% for index in table.indices %}
-    {% if index.type != "KEY" %}
+    {% if index.type == "PRIMARY KEY" %}
 
+    @Override
+    public Optional<{{ table.class_name }}> find({% if index.is_composite_pk() %}Abstract{{ table.class_name }}.PK pk{% else %}{{ index.columns[0].field_type }} pk{% endif %}) {
+        return Optional.ofNullable(getEntityManager().find(getEntityClass(), pk));
+    }
+    {% endif %}
+    {% if index.type == "UNIQUE KEY" %}
+
+    @Override
     public {{ table.class_name }} findBy{{ index.get_combined_pascal_column_names() }}({% for column in index.columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
         CriteriaQuery<{{ table.class_name }}> query = criteriaQuery();
         Root<{{ table.class_name }}> root = query.from(getEntityClass());
@@ -70,8 +89,10 @@ public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoI
                 {% endif %}
         return uniqueResult(query);
     }
-    {% else %}
+    {% endif %}
+    {% if index.type == "KEY" %}
 
+    @Override
     public List<{{ table.class_name }}> findAnyBy{{ index.get_combined_pascal_column_names() }}({% for column in index.columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
         CriteriaQuery<{{ table.class_name }}> query = criteriaQuery();
         Root<{{ table.class_name }}> root = query.from(getEntityClass());

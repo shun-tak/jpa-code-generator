@@ -1,9 +1,12 @@
 package {{ env.java_package_entity_dao }};
 
+import {{ env.java_package_entity }}.Abstract{{ table.class_name }};
 import {{ env.java_package_entity_ext }}.{{ table.class_name }};
+
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {{ table.class_name }} DAO base interface.
@@ -11,14 +14,21 @@ import java.util.List;
  */
 @javax.annotation.Generated(value = "JPACodeGenerator")
 public interface Abstract{{ table.class_name }}Dao extends AbstractDao<{{ table.class_name }}> {
+    {{ table.class_name }} create({{ table.class_name }} {{ table.camel_name }});
+
     {{ table.class_name }} create({% for column in table.no_default_columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
 
     List<{{ table.class_name }}> findAll();
     {% for index in table.indices %}
-    {% if index.type != "KEY" %}
+    {% if index.type == "PRIMARY KEY" %}
+
+    Optional<{{ table.class_name }}> find({% if index.is_composite_pk() %}Abstract{{ table.class_name }}.PK pk{% else %}{{ index.columns[0].field_type }} {{ index.columns[0].field_name }}{% endif %});
+    {% endif %}
+    {% if index.type == "UNIQUE KEY" %}
 
     {{ table.class_name }} findBy{{ index.get_combined_pascal_column_names() }}({% for column in index.columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
-    {% else %}
+    {% endif %}
+    {% if index.type == "KEY" %}
 
     List<{{ table.class_name }}> findAnyBy{{ index.get_combined_pascal_column_names() }}({% for column in index.columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
     {% endif %}
