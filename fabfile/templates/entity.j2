@@ -2,9 +2,9 @@ package {{ env.java_package_entity_ext }};
 
 import {{ env.java_package_entity }}.Abstract{{ table.class_name }};
 import lombok.*;
-import org.joda.time.DateTime;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 
 @NoArgsConstructor
 @Entity
