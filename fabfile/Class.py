@@ -144,6 +144,7 @@ def _convert_to_java_type(_type):
     _long = re.compile('^bigint', re.IGNORECASE)
     _string = re.compile('^varchar|^text', re.IGNORECASE)
     _datetime = re.compile('^datetime')
+    _timestamp = re.compile('^timestamp')
 
     if _boolean.match(_type):
         return "boolean"
@@ -158,7 +159,10 @@ def _convert_to_java_type(_type):
         return "String"
 
     if _datetime.match(_type):
-        return "DateTime"
+        return "ZonedDateTime"
+
+    if _timestamp.match(_type):
+        return "ZonedDateTime"
 
 
 def _filter_size(_field_type, _type):

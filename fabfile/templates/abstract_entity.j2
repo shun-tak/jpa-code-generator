@@ -1,15 +1,13 @@
 package {{ env.java_package_entity }};
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.joda.ser.DateTimeSerializer;
 import lombok.*;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
-import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 /**
  * {{ table.class_name }} entity base class.
@@ -40,9 +38,6 @@ public abstract class Abstract{{ table.class_name }} implements Serializable {
     {% endif %}
     {% if column.null == "NOT NULL" and column.name != "id" and column.name != "created_at" and column.name != "updated_at" %}
     @NotNull
-    {% endif %}
-    {% if column.field_type == "DateTime" %}
-    @JsonSerialize(using = DateTimeSerializer.class)
     {% endif %}
     {% if column.field_size %}
     @Size(max = {{ column.field_size }})
