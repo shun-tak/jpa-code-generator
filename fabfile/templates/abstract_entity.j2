@@ -46,6 +46,7 @@ public abstract class Abstract{{ table.class_name }} implements Serializable {
 
     {% endfor %}
     {% if table.has_composite_primary_keys() %}
+    @AllArgsConstructor
     @Embeddable
     public static class PK implements Serializable {
         {% for column in table.get_primary_key().get_columns() %}
