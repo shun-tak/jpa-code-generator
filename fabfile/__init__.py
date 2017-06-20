@@ -9,9 +9,9 @@ import generate
 env.generated_dir = 'generated'
 env.project_name = 'example-entity'
 
-env.mysql_host = 'localhost'
-env.mysql_user = 'your_mysql_user_name'
-env.mysql_database = 'your_database_name'
+env.mysql = [
+    {'host': 'localhost', 'user': 'your_mysql_user_name', 'database': 'your_database_name'},
+]
 
 _project_dir = 'example/project'
 _project_package = 'example.project'

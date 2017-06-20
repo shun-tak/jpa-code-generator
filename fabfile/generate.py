@@ -39,9 +39,11 @@ def schema():
         # Create output dir if not exists
         local("[ -d {0} ] || mkdir -p {0}".format(SCHEMA_SQL_DIR))
 
-        # Execute mysqldump
-        opts = "-d --compact -Q --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(env.mysql_database)
-        local('mysqldump ' + opts + ' -h' + env.mysql_host + ' -u' + env.mysql_user + ' -p ' + env.mysql_database + ' -r ' + SCHEMA_SQL_PATH)
+        # Initialize output file
+        local('echo "" > ' + SCHEMA_SQL_PATH)
+
+        for mysql in env.mysql:
+            _output_schema(mysql)
 
         # Reset auto increment counter
         sed_inplace(SCHEMA_SQL_PATH, 'AUTO_INCREMENT=\d* ', '')
@@ -78,6 +80,12 @@ def _set_schema_dir():
     global SCHEMA_SQL_PATH
     SCHEMA_SQL_DIR = os.path.join(PROJECT_DIR, env.schema_sql_dir)
     SCHEMA_SQL_PATH = os.path.join(SCHEMA_SQL_DIR, 'schema.sql')
+
+
+def _output_schema(mysql):
+    # Execute mysqldump
+    opts = "-d --compact -Q --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(mysql['database'])
+    local('mysqldump ' + opts + ' -h' + mysql['host'] + ' -u' + mysql['user'] + ' -p ' + mysql['database'] + ' >> ' + SCHEMA_SQL_PATH)
 
 
 def _parse_sql():
