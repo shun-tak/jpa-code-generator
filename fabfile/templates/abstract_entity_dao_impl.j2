@@ -6,6 +6,7 @@ import {{ env.java_package_entity_ext }}.{{ table.class_name }};
 import {{ env.java_package_entity_ext }}.{{ table.class_name }}_;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -19,12 +20,21 @@ import java.util.Optional;
  */
 @javax.annotation.Generated(value = "JPACodeGenerator")
 public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoImpl<{{ table.class_name }}> implements Abstract{{ table.class_name }}Dao {
+    @PersistenceContext(unitName = "{{ database.name }}")
+    private EntityManager entityManager;
+
     protected Abstract{{ table.class_name }}DaoImpl() {
         super({{ table.class_name }}.class);
     }
 
     protected Abstract{{ table.class_name }}DaoImpl(EntityManager entityManager) {
         super({{ table.class_name }}.class, entityManager);
+        this.entityManager = entityManager;
+    }
+
+    @Override
+    protected EntityManager getEntityManager() {
+        return this.entityManager;
     }
 
     @Override

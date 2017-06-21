@@ -70,9 +70,9 @@ def jar():
 
 def _generate_entities():
     _set_schema_dir()
-    tables = _parse_sql()
-    _print_tables(tables)
-    _tables_to_files(tables)
+    databases = _parse_sql()
+    _print_tables(databases)
+    _tables_to_files(databases)
 
 
 def _set_schema_dir():
@@ -95,6 +95,7 @@ def _output_schema(mysql):
 
 def _parse_sql():
     # Compiled regex patterns
+    use_database = re.compile('^USE `(.*?)`;', re.IGNORECASE)
     create_table = re.compile('^CREATE TABLE `(.*?)`', re.IGNORECASE)
     column = re.compile('^\s*?`(?P<name>.*?)` (?P<type>\w.*?)[,\s]((?P<null>.*?NULL)[,\s])?(DEFAULT \'(?P<default>.*)\'[,\s])?((?P<auto_increment>AUTO_INCREMENT)[,\s])?', re.IGNORECASE)
     primary_key = re.compile('^\s*?(?P<type>PRIMARY KEY) .*?\((?P<columns>(`\w.*?`,?)+.*?)\)[,]?$', re.IGNORECASE)
@@ -103,28 +104,37 @@ def _parse_sql():
     column_of_key = re.compile('`(\w.*?)`', re.IGNORECASE)
     create_table_end = re.compile('^\)')
 
-    tables = []
-
+    databases = []
     with open(SCHEMA_SQL_PATH) as f:
+        database = None
+
         for line in f:
+            # parse database name
+            matches = use_database.match(line)
+            if matches:
+                database_name = matches.group(1)
+                database = Database(database_name)
+                databases.append(database)
+                continue
+
             # parse table name
             matches = create_table.match(line)
             if matches:
                 table_name = matches.group(1)
-                tables.append(Table(table_name))
+                database.get_tables().append(Table(table_name))
                 continue
 
             # parse column name
             matches = column.match(line)
             if matches:
-                table = tables.pop()
+                table = database.get_tables().pop()
                 table.add_column(Column(matches.group('name'), matches.group('type'), matches.group('null'), matches.group('default'), matches.group('auto_increment')))
-                tables.append(table)
+                database.get_tables().append(table)
 
             # parse primary key
             matches = primary_key.match(line)
             if matches:
-                table = tables.pop()
+                table = database.get_tables().pop()
                 i = Index(matches.group('type'))
                 column_names = column_of_key.findall(matches.group('columns'))
                 i.set_column_names(column_names)
@@ -132,12 +142,12 @@ def _parse_sql():
                 for name in column_names:
                     i.add_column(table.find_column_by_name(name))
                 table.add_index(i)
-                tables.append(table)
+                database.get_tables().append(table)
 
             # parse unique keys
             matches = unique_key.match(line)
             if matches:
-                table = tables.pop()
+                table = database.get_tables().pop()
                 i = Index(matches.group('type'))
                 column_names = column_of_key.findall(matches.group('columns'))
                 i.set_column_names(column_names)
@@ -145,12 +155,12 @@ def _parse_sql():
                 for name in column_names:
                     i.add_column(table.find_column_by_name(name))
                 table.add_index(i)
-                tables.append(table)
+                database.get_tables().append(table)
 
             # parse keys
             matches = key.match(line)
             if matches:
-                table = tables.pop()
+                table = database.get_tables().pop()
                 i = Index(matches.group('type'))
                 column_names = column_of_key.findall(matches.group('columns'))
                 i.set_column_names(column_names)
@@ -158,35 +168,36 @@ def _parse_sql():
                 for name in column_names:
                     i.add_column(table.find_column_by_name(name))
                 table.add_index(i)
-                tables.append(table)
+                database.get_tables().append(table)
 
             matches = create_table_end.match(line)
             if matches:
                 continue
 
-    return tables
+    return databases
 
 
-def _print_tables(tables):
-    for table in tables:
-        print '+', table.get_name()
-        print '  + columns'
-        for column in table.get_columns():
-            print '    -',
-            print column.get_name(),
-            print column.get_type(),
-            print column.get_null(),
-            print column.get_default(),
-            print column.get_auto_increment()
+def _print_tables(databases):
+    for database in databases:
+        for table in database.get_tables():
+            print '+', database.get_name() + '.' + table.get_name()
+            print '  + columns'
+            for column in table.get_columns():
+                print '    -',
+                print column.get_name(),
+                print column.get_type(),
+                print column.get_null(),
+                print column.get_default(),
+                print column.get_auto_increment()
 
-        print '  + indices'
-        for index in table.get_indices():
-            print '    *',
-            print index.get_type(),
-            print index.get_column_names()
+            print '  + indices'
+            for index in table.get_indices():
+                print '    *',
+                print index.get_type(),
+                print index.get_column_names()
 
 
-def _tables_to_files(tables):
+def _tables_to_files(databases):
     jinja_env = Environment(loader=FileSystemLoader(os.path.join(FAB_DIR, 'templates')), trim_blocks=True, lstrip_blocks=True)
     settings_gradle = jinja_env.get_template('settings.gradle.j2')
     build_gradle = jinja_env.get_template('build.gradle.j2')
@@ -220,28 +231,30 @@ def _tables_to_files(tables):
     persistence_xml_path = os.path.join(PROJECT_DIR, env.persistence_xml_dir, 'persistence.xml')
     persistence_xml.stream(
         env=env,
-        tables=tables
+        databases=databases
     ).dump(persistence_xml_path)
 
     # Generate AbstractEntity.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dir))
-    for table in tables:
-        abstract_entity_path = os.path.join(PROJECT_DIR, env.entity_dir, 'Abstract' + table.get_class_name() + '.java')
-        abstract_entity.stream(
-            env=env,
-            table=table
-        ).dump(abstract_entity_path)
+    for database in databases:
+        for table in database.get_tables():
+            abstract_entity_path = os.path.join(PROJECT_DIR, env.entity_dir, 'Abstract' + table.get_class_name() + '.java')
+            abstract_entity.stream(
+                env=env,
+                table=table
+            ).dump(abstract_entity_path)
 
     # Generate Entity.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_ext_dir))
-    for table in tables:
-        entity_ext_path = os.path.join(PROJECT_DIR, env.entity_ext_dir, table.get_class_name() + '.java')
-        # Prevent overwriting extension class
-        if not os.path.isfile(entity_ext_path):
-            entity.stream(
-                env=env,
-                table=table
-            ).dump(entity_ext_path)
+    for database in databases:
+        for table in database.get_tables():
+            entity_ext_path = os.path.join(PROJECT_DIR, env.entity_ext_dir, table.get_class_name() + '.java')
+            # Prevent overwriting extension class
+            if not os.path.isfile(entity_ext_path):
+                entity.stream(
+                    env=env,
+                    table=table
+                ).dump(entity_ext_path)
 
     # Generate AbstractDao.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_dir))
@@ -258,42 +271,47 @@ def _tables_to_files(tables):
     ).dump(abstract_dao_impl_path)
 
     # Generate AbstractEntityDao.java
-    for table in tables:
-        abstract_entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, 'Abstract' + table.get_class_name() + 'Dao.java')
-        abstract_entity_dao.stream(
-            env=env,
-            table=table
-        ).dump(abstract_entity_dao_path)
+    for database in databases:
+        for table in database.get_tables():
+            abstract_entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_dir, 'Abstract' + table.get_class_name() + 'Dao.java')
+            abstract_entity_dao.stream(
+                env=env,
+                table=table,
+            ).dump(abstract_entity_dao_path)
 
     # Generate AbstractEntityDaoImpl.java
-    for table in tables:
-        abstract_entity_dao_impl_path = os.path.join(PROJECT_DIR, env.entity_dao_impl_dir, 'Abstract' + table.get_class_name() + 'DaoImpl.java')
-        abstract_entity_dao_impl.stream(
-            env=env,
-            table=table
-        ).dump(abstract_entity_dao_impl_path)
+    for database in databases:
+        for table in database.get_tables():
+            abstract_entity_dao_impl_path = os.path.join(PROJECT_DIR, env.entity_dao_impl_dir, 'Abstract' + table.get_class_name() + 'DaoImpl.java')
+            abstract_entity_dao_impl.stream(
+                env=env,
+                table=table,
+                database=database
+            ).dump(abstract_entity_dao_impl_path)
 
     # Generate EntityDao.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_ext_dir))
-    for table in tables:
-        entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_ext_dir, table.get_class_name() + 'Dao.java')
-        # Prevent overwriting extension class
-        if not os.path.isfile(entity_dao_path):
-            entity_dao.stream(
-                env=env,
-                table=table
-            ).dump(entity_dao_path)
+    for database in databases:
+        for table in database.get_tables():
+            entity_dao_path = os.path.join(PROJECT_DIR, env.entity_dao_ext_dir, table.get_class_name() + 'Dao.java')
+            # Prevent overwriting extension class
+            if not os.path.isfile(entity_dao_path):
+                entity_dao.stream(
+                    env=env,
+                    table=table
+                ).dump(entity_dao_path)
 
     # Generate EntityDaoImpl.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dao_ext_impl_dir))
-    for table in tables:
-        entity_dao_impl_path = os.path.join(PROJECT_DIR, env.entity_dao_ext_impl_dir, table.get_class_name() + 'DaoImpl.java')
-        # Prevent overwriting extension class
-        if not os.path.isfile(entity_dao_impl_path):
-            entity_dao_impl.stream(
-                env=env,
-                table=table
-            ).dump(entity_dao_impl_path)
+    for database in databases:
+        for table in database.get_tables():
+            entity_dao_impl_path = os.path.join(PROJECT_DIR, env.entity_dao_ext_impl_dir, table.get_class_name() + 'DaoImpl.java')
+            # Prevent overwriting extension class
+            if not os.path.isfile(entity_dao_impl_path):
+                entity_dao_impl.stream(
+                    env=env,
+                    table=table
+                ).dump(entity_dao_impl_path)
 
 
 def _java_build():

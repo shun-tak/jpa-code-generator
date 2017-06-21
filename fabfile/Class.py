@@ -3,6 +3,21 @@ from util import *
 import re
 
 
+class Database:
+    def __init__(self, name):
+        self.name = name
+        self.tables = []
+
+    def get_name(self):
+        return self.name
+
+    def get_tables(self):
+        return self.tables
+
+    def add_table(self, table):
+        self.tables.append(table)
+
+
 class Table:
     def __init__(self, name):
         self.name = name

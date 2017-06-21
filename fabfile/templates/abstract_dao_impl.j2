@@ -3,7 +3,6 @@ package {{ env.java_package_entity_dao_impl }};
 import {{ env.java_package_entity_dao }}.AbstractDao;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,7 +18,6 @@ import java.util.Objects;
 public abstract class AbstractDaoImpl<E> implements AbstractDao<E> {
     private final Class<?> entityClass;
 
-    @PersistenceContext
     private EntityManager entityManager;
 
     protected AbstractDaoImpl(Class<?> entityClass) {
