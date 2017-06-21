@@ -29,13 +29,13 @@ public abstract class AbstractDaoImpl<E> implements AbstractDao<E> {
         this.entityManager = entityManager;
     }
 
-    protected EntityManager getEntityManager() {
-        return this.entityManager;
+    @SuppressWarnings("unchecked")
+    public Class<E> getEntityClass() {
+        return (Class<E>) entityClass;
     }
 
-    @SuppressWarnings("unchecked")
-    protected Class<E> getEntityClass() {
-        return (Class<E>) entityClass;
+    public EntityManager getEntityManager() {
+        return this.entityManager;
     }
 
     protected CriteriaBuilder criteriaBuilder() {

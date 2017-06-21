@@ -1,6 +1,5 @@
 package {{ env.java_package_entity_dao_impl }};
 
-import {{ env.java_package_entity }}.Abstract{{ table.class_name }};
 import {{ env.java_package_entity_dao }}.Abstract{{ table.class_name }}Dao;
 import {{ env.java_package_entity_ext }}.{{ table.class_name }};
 import {{ env.java_package_entity_ext }}.{{ table.class_name }}_;
@@ -33,7 +32,7 @@ public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoI
     }
 
     @Override
-    protected EntityManager getEntityManager() {
+    public EntityManager getEntityManager() {
         return this.entityManager;
     }
 
