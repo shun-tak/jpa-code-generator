@@ -83,9 +83,14 @@ def _set_schema_dir():
 
 
 def _output_schema(mysql):
+    # Options
+    ignore_tables = ''
+    for database in mysql['databases']:
+        ignore_tables += " --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(database)
+    opts = '--no-data --compact --quick --single-transaction' + ignore_tables
+    databases = ' '.join(mysql['databases'])
     # Execute mysqldump
-    opts = "-d --compact -Q --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(mysql['database'])
-    local('mysqldump ' + opts + ' -h' + mysql['host'] + ' -u' + mysql['user'] + ' -p ' + mysql['database'] + ' >> ' + SCHEMA_SQL_PATH)
+    local('mysqldump ' + opts + ' -h' + mysql['host'] + ' -u' + mysql['user'] + ' -p -B ' + databases + ' >> ' + SCHEMA_SQL_PATH)
 
 
 def _parse_sql():

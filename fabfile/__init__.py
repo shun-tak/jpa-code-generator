@@ -10,7 +10,7 @@ env.generated_dir = 'generated'
 env.project_name = 'example-entity'
 
 env.mysql = [
-    {'host': 'localhost', 'user': 'your_mysql_user_name', 'database': 'your_database_name'},
+    {'host': 'localhost', 'user': 'your_mysql_user_name', 'databases': ['your_database_name']},
 ]
 
 _project_dir = 'example/project'
