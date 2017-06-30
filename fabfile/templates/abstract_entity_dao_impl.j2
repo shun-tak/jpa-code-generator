@@ -40,14 +40,15 @@ public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoI
     @Override
     public {{ table.class_name }} create({{ table.class_name }} {{ table.camel_name }}) {
         getEntityManager().persist({{ table.camel_name }});
+        getEntityManager().flush();
         return {{ table.camel_name }};
     }
 
     @Override
-    public {{ table.class_name }} create({% for column in table.no_default_columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+    public {{ table.class_name }} create({% for column in table.not_null_columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
         {{ table.class_name }} {{ table.camel_name }} = {{ table.class_name }}
                 .builder()
-                {% for column in table.no_default_columns %}
+                {% for column in table.not_null_columns %}
                 .{{ column.field_name }}({{ column.field_name }})
                 {% endfor %}
                 .build();

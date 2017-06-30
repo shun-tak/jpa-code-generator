@@ -97,7 +97,7 @@ def _parse_sql():
     # Compiled regex patterns
     use_database = re.compile('^USE `(.*?)`;', re.IGNORECASE)
     create_table = re.compile('^CREATE TABLE `(.*?)`', re.IGNORECASE)
-    column = re.compile('^\s*?`(?P<name>.*?)` (?P<type>\w.*?)[,\s]((?P<null>.*?NULL)[,\s])?(DEFAULT \'(?P<default>.*)\'[,\s])?((?P<auto_increment>AUTO_INCREMENT)[,\s])?', re.IGNORECASE)
+    column = re.compile('^\s*?`(?P<name>.*?)` (?P<type>\w.*?)[,\s]((?P<unsigned>unsigned)[,\s])?(.*?(?P<not_null>NOT\sNULL).*?[,\s])?(DEFAULT \'(?P<default>.*)\'[,\s])?((?P<auto_increment>AUTO_INCREMENT)[,\s])?', re.IGNORECASE)
     primary_key = re.compile('^\s*?(?P<type>PRIMARY KEY) .*?\((?P<columns>(`\w.*?`,?)+.*?)\)[,]?$', re.IGNORECASE)
     unique_key = re.compile('^\s*?(?P<type>UNIQUE KEY) .*?\((?P<columns>(`\w.*?`,?)+.*?)\)[,]?$', re.IGNORECASE)
     key = re.compile('^\s*?(?P<type>KEY) .*?\((?P<columns>(`\w.*?`,?)+.*?)\)[,]?$', re.IGNORECASE)
@@ -128,7 +128,7 @@ def _parse_sql():
             matches = column.match(line)
             if matches:
                 table = database.get_tables().pop()
-                table.add_column(Column(matches.group('name'), matches.group('type'), matches.group('null'), matches.group('default'), matches.group('auto_increment')))
+                table.add_column(Column(matches.group('name'), matches.group('type'), matches.group('unsigned'), matches.group('not_null'), matches.group('default'), matches.group('auto_increment')))
                 database.get_tables().append(table)
 
             # parse primary key
@@ -185,8 +185,8 @@ def _print_tables(databases):
             for column in table.get_columns():
                 print '    -',
                 print column.get_name(),
-                print column.get_type(),
-                print column.get_null(),
+                print column.get_type() + ' ' + column.get_unsigned(),
+                print 'NOT NULL' if column.is_not_null() else 'NULL',
                 print column.get_default(),
                 print column.get_auto_increment()
 

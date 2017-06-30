@@ -24,7 +24,7 @@ class Table:
         self.camel_name = camel_case(name)
         self.class_name = pascal_case(name)
         self.columns = []
-        self.no_default_columns = []
+        self.not_null_columns = []
         self.indices = []
 
     def get_name(self):
@@ -38,8 +38,8 @@ class Table:
 
     def add_column(self, column):
         self.columns.append(column)
-        if column.default == "" and not column.auto_increment and column.name != "created_at" and column.name != "updated_at":
-            self.no_default_columns.append(column)
+        if column.is_not_null() and not column.auto_increment and column.name != "created_at" and column.name != "updated_at":
+            self.not_null_columns.append(column)
 
     def get_indices(self):
         return self.indices
@@ -109,7 +109,7 @@ class Index:
 
 
 class Column:
-    def __init__(self, _name, _type, _null=None, _default=None, _auto_increment=None):
+    def __init__(self, _name, _type, _unsigned=None, _not_null=None, _default=None, _auto_increment=None):
         self.name = _name
         self.field_name = camel_case(_name)
         self.pascal_name = pascal_case(_name)
@@ -117,9 +117,13 @@ class Column:
         self.field_type = _convert_to_java_type(_type)
         self.field_size = _filter_size(self.field_type, _type)
 
-        self.null = ""
-        if _null:
-            self.null = _null
+        self.unsigned = ""
+        if _unsigned:
+            self.unsigned = _unsigned
+
+        self.not_null = False
+        if _not_null == 'NOT NULL':
+            self.not_null = True
 
         self.default = ""
         if _default:
@@ -137,8 +141,11 @@ class Column:
     def get_type(self):
         return self.type
 
-    def get_null(self):
-        return self.null
+    def get_unsigned(self):
+        return self.unsigned
+
+    def is_not_null(self):
+        return self.not_null
 
     def get_default(self):
         return self.default

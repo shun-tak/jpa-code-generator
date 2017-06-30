@@ -36,7 +36,7 @@ public abstract class Abstract{{ table.class_name }} implements Serializable {
     {% if column.name == "updated_at" %}
     @Generated(value = GenerationTime.ALWAYS)
     {% endif %}
-    {% if column.null == "NOT NULL" and column.name != "id" and column.name != "created_at" and column.name != "updated_at" %}
+    {% if column.is_not_null() and column.auto_increment == "" and column.name != "created_at" and column.name != "updated_at" %}
     @NotNull
     {% endif %}
     {% if column.field_size %}
@@ -46,12 +46,18 @@ public abstract class Abstract{{ table.class_name }} implements Serializable {
 
     {% endfor %}
     {% if table.has_composite_primary_keys() %}
+    public PK pk() {
+        return new PK({% for column in table.get_primary_key().get_columns() %}{{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
+    }
+
     @NoArgsConstructor
     @AllArgsConstructor
+    @Getter
     @Embeddable
     public static class PK implements Serializable {
         {% for column in table.get_primary_key().get_columns() %}
         @Column(name = "{{ column.name }}")
+        @NotNull
         private {{ column.field_type }} {{ column.field_name }};
 
         {% endfor %}
