@@ -16,10 +16,10 @@ public interface AbstractDao<E> {
 
     E persist(E entity);
 
-    Optional<E> find(Object pk);
-
     E merge(E entity);
 
     E remove(E entity);
+
+    Optional<E> find(Object pk);
 }
 

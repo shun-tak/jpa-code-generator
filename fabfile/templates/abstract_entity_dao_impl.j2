@@ -48,20 +48,12 @@ public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoI
                 .build();
         return persist({{ table.camel_name }});
     }
-
-    @Override
-    public List<{{ table.class_name }}> findAll() {
-        CriteriaQuery<{{ table.class_name }}> query = criteriaQuery();
-        Root<{{ table.class_name }}> root = query.from(getEntityClass());
-        query.select(root);
-        return list(query);
-    }
     {% for index in table.indices %}
     {% if index.type == "PRIMARY KEY" %}
 
     @Override
     public Optional<{{ table.class_name }}> find({% if index.is_composite_pk() %}Abstract{{ table.class_name }}.PK pk{% else %}{{ index.columns[0].field_type }} pk{% endif %}) {
-        return Optional.ofNullable(getEntityManager().find(getEntityClass(), pk));
+        return super.find(pk);
     }
     {% endif %}
     {% if index.type == "UNIQUE KEY" %}
@@ -99,5 +91,13 @@ public abstract class Abstract{{ table.class_name }}DaoImpl extends AbstractDaoI
     }
     {% endif %}
     {% endfor %}
+
+    @Override
+    public List<{{ table.class_name }}> findAll() {
+        CriteriaQuery<{{ table.class_name }}> query = criteriaQuery();
+        Root<{{ table.class_name }}> root = query.from(getEntityClass());
+        query.select(root);
+        return list(query);
+    }
 }
 

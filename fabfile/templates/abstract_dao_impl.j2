@@ -45,15 +45,10 @@ public abstract class AbstractDaoImpl<E> implements AbstractDao<E> {
     }
 
     @Override
-    public Optional<E> find(Object pk) {
-        return Optional.ofNullable(getEntityManager().find(getEntityClass(), pk));
-    }
-
-    @Override
     public E merge(E entity) {
-        getEntityManager().merge(entity);
+        E managedEntity = getEntityManager().merge(entity);
         getEntityManager().flush();
-        return entity;
+        return managedEntity;
     }
 
     @Override
@@ -61,6 +56,11 @@ public abstract class AbstractDaoImpl<E> implements AbstractDao<E> {
         getEntityManager().remove(entity);
         getEntityManager().flush();
         return entity;
+    }
+
+    @Override
+    public Optional<E> find(Object pk) {
+        return Optional.ofNullable(getEntityManager().find(getEntityClass(), pk));
     }
 
     protected CriteriaBuilder criteriaBuilder() {

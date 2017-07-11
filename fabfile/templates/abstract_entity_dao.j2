@@ -15,8 +15,6 @@ import java.util.Optional;
 @Generated(value = "JPACodeGenerator")
 public interface Abstract{{ table.class_name }}Dao extends AbstractDao<{{ table.class_name }}> {
     {{ table.class_name }} persist({% for column in table.not_null_columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
-
-    List<{{ table.class_name }}> findAll();
     {% for index in table.indices %}
     {% if index.type == "PRIMARY KEY" %}
 
@@ -31,5 +29,7 @@ public interface Abstract{{ table.class_name }}Dao extends AbstractDao<{{ table.
     List<{{ table.class_name }}> findAnyBy{{ index.get_combined_pascal_column_names() }}({% for column in index.columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
     {% endif %}
     {% endfor %}
+
+    List<{{ table.class_name }}> findAll();
 }
 
