@@ -1,9 +1,6 @@
 package {{ env.java_package_entity }};
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.annotation.Generated;
 import javax.persistence.*;
@@ -18,7 +15,10 @@ import java.time.ZonedDateTime;
 @Generated(value = "JPACodeGenerator")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 @MappedSuperclass
 {% if table.has_composite_primary_keys() %}
 @IdClass(Abstract{{ table.class_name }}.PK.class)
@@ -49,6 +49,8 @@ public abstract class Abstract{{ table.class_name }} implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter
+    @ToString
+    @EqualsAndHashCode
     @Embeddable
     public static class PK implements Serializable {
         {% for column in table.get_primary_key().get_columns() %}
