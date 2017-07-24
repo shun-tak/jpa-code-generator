@@ -39,6 +39,8 @@ Dependencies for this generator, not for generated sources.
 
 Fork or clone this repo.
 
+### Configuration
+
 Edit `env` in fabfile/\__init\__.py:
 
 ```
@@ -49,17 +51,23 @@ env.mysql = [
     {'host': 'localhost', 'user': 'your_mysql_user_name', 'databases': ['your_database_name']},
 ]
 
+env.persistence_unit_name_map = {
+    'your_database_name': 'your_persistence_unit_name'
+}
+
 _project_dir = 'example/project'
 _project_package = 'example.project'
 ```
 
-Run schema file generator:
+### Schema file generator
 
 ```
 fab generate.schema
 ```
 
-Run java files generator with your build version:
+### Java files generator
+
+Run with your build version:
 
 ```
 fab generate.code:<version>
@@ -67,7 +75,15 @@ fab generate.code:<version>
 
 e.g. `fab generate.code:1.0.0-SNAPSHOT`
 
-Run jar file generator:
+If you don't need persistence.xml, you can add `no_xml` option:
+
+```
+fab generate.code:<version>,no_xml=True
+```
+
+then you can skip generating persistence.xml.
+
+### Jar file generator
 
 ```
 fab generate.jar
