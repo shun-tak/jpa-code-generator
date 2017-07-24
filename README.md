@@ -48,7 +48,10 @@ env.generated_dir = 'generated'
 env.project_name = 'example-entity'
 
 env.mysql = [
+    # Input password interactively
     {'host': 'localhost', 'user': 'your_mysql_user_name', 'databases': ['your_database_name']},
+    # Input password on batch
+    {'host': 'localhost', 'user': 'your_mysql_user_name', 'password': 'your_mysql_password', 'databases': ['your_database_name']},
 ]
 
 env.persistence_unit_name_map = {

@@ -89,8 +89,14 @@ def _output_schema(mysql):
         ignore_tables += " --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(database)
     opts = '--no-data --compact --quick --single-transaction' + ignore_tables
     databases = ' '.join(mysql['databases'])
+
     # Execute mysqldump
-    local('mysqldump ' + opts + ' -h' + mysql['host'] + ' -u' + mysql['user'] + ' -p -B ' + databases + ' >> ' + SCHEMA_SQL_PATH)
+    print(mysql.has_key('password'))
+    if mysql.has_key('password'):
+        password = ' -p' + mysql['password'] if mysql['password'] else ''
+        local('mysqldump ' + opts + ' -h' + mysql['host'] + ' -u' + mysql['user'] + password + ' -B ' + databases + ' >> ' + SCHEMA_SQL_PATH)
+    else:
+        local('mysqldump ' + opts + ' -h' + mysql['host'] + ' -u' + mysql['user'] + ' -p -B ' + databases + ' >> ' + SCHEMA_SQL_PATH)
 
 
 def _parse_sql():
