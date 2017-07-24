@@ -52,10 +52,10 @@ def schema():
 
 
 @task
-def code(version):
+def code(version, no_xml = False):
     with lcd(PROJECT_DIR):
         env.build_version = version
-        _generate_entities()
+        _generate_entities(no_xml)
         print green('Java files have been generated!')
 
 
@@ -68,11 +68,11 @@ def jar():
         local('ls ' + jar_path)
 
 
-def _generate_entities():
+def _generate_entities(no_xml):
     _set_schema_dir()
     databases = _parse_sql()
     _print_tables(databases)
-    _tables_to_files(databases)
+    _tables_to_files(databases, no_xml)
 
 
 def _set_schema_dir():
@@ -199,7 +199,7 @@ def _print_tables(databases):
                 print index.get_column_names()
 
 
-def _tables_to_files(databases):
+def _tables_to_files(databases, no_xml):
     jinja_env = Environment(loader=FileSystemLoader(os.path.join(FAB_DIR, 'templates')), trim_blocks=True, lstrip_blocks=True)
     settings_gradle = jinja_env.get_template('settings.gradle.j2')
     build_gradle = jinja_env.get_template('build.gradle.j2')
@@ -228,13 +228,14 @@ def _tables_to_files(databases):
         env=env
     ).dump(build_gradle_path)
 
-    # Generate persistence.xml
-    local("[ -d {0} ] || mkdir -p {0}".format(env.persistence_xml_dir))
-    persistence_xml_path = os.path.join(PROJECT_DIR, env.persistence_xml_dir, 'persistence.xml')
-    persistence_xml.stream(
-        env=env,
-        databases=databases
-    ).dump(persistence_xml_path)
+    if not no_xml:
+        # Generate persistence.xml
+        local("[ -d {0} ] || mkdir -p {0}".format(env.persistence_xml_dir))
+        persistence_xml_path = os.path.join(PROJECT_DIR, env.persistence_xml_dir, 'persistence.xml')
+        persistence_xml.stream(
+            env=env,
+            databases=databases
+        ).dump(persistence_xml_path)
 
     # Generate AbstractEntity.java
     local("[ -d {0} ] || mkdir -p {0}".format(env.entity_dir))
