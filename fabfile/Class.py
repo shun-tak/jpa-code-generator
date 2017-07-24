@@ -4,9 +4,11 @@ import re
 
 
 class Database:
-    def __init__(self, name):
+    def __init__(self, name, persistence_unit_name):
         self.name = name
         self.tables = []
+        self.persistence_unit_name = persistence_unit_name
+        self.package_name = camel_case(persistence_unit_name).lower()
 
     def get_name(self):
         return self.name
@@ -17,15 +19,23 @@ class Database:
     def add_table(self, table):
         self.tables.append(table)
 
+    def get_persistence_unit_name(self):
+        return self.persistence_unit_name
+
+    def get_package_name(self):
+        return self.package_name
+
 
 class Table:
-    def __init__(self, name):
+    def __init__(self, name, persistence_unit_name):
         self.name = name
         self.camel_name = camel_case(name)
         self.class_name = pascal_case(name)
         self.columns = []
         self.not_null_columns = []
         self.indices = []
+        self.persistence_unit_name = persistence_unit_name
+        self.package_name = camel_case(persistence_unit_name).lower()
 
     def get_name(self):
         return self.name
@@ -46,6 +56,12 @@ class Table:
 
     def add_index(self, index):
         self.indices.append(index)
+
+    def get_persistence_unit_name(self):
+        return self.persistence_unit_name
+
+    def get_package_name(self):
+        return self.package_name
 
     def find_column_by_name(self, _column_name):
         for column in self.columns:

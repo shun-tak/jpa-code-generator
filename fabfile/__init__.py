@@ -13,6 +13,10 @@ env.mysql = [
     {'host': 'localhost', 'user': 'your_mysql_user_name', 'databases': ['your_database_name']},
 ]
 
+env.persistence_unit_name_map = {
+    'your_database_name': 'your_persistence_unit_name'
+}
+
 _project_dir = 'example/project'
 _project_package = 'example.project'
 

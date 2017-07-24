@@ -107,13 +107,15 @@ def _parse_sql():
     databases = []
     with open(SCHEMA_SQL_PATH) as f:
         database = None
+        persistence_unit_name = ''
 
         for line in f:
             # parse database name
             matches = use_database.match(line)
             if matches:
                 database_name = matches.group(1)
-                database = Database(database_name)
+                persistence_unit_name = env.persistence_unit_name_map[database_name]
+                database = Database(database_name, persistence_unit_name)
                 databases.append(database)
                 continue
 
@@ -121,7 +123,7 @@ def _parse_sql():
             matches = create_table.match(line)
             if matches:
                 table_name = matches.group(1)
-                database.get_tables().append(Table(table_name))
+                database.get_tables().append(Table(table_name, persistence_unit_name))
                 continue
 
             # parse column name
@@ -245,10 +247,11 @@ def _tables_to_files(databases):
             ).dump(abstract_entity_path)
 
     # Generate Entity.java
-    local("[ -d {0} ] || mkdir -p {0}".format(env.entity_ext_dir))
     for database in databases:
+        dir = os.path.join(env.entity_ext_dir, database.package_name)
+        local("[ -d {0} ] || mkdir -p {0}".format(dir))
         for table in database.get_tables():
-            entity_ext_path = os.path.join(PROJECT_DIR, env.entity_ext_dir, table.get_class_name() + '.java')
+            entity_ext_path = os.path.join(PROJECT_DIR, dir, table.get_class_name() + '.java')
             # Prevent overwriting extension class
             if not os.path.isfile(entity_ext_path):
                 entity.stream(
