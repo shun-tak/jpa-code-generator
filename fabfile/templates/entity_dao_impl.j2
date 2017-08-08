@@ -2,16 +2,15 @@ package {{ env.java_package_entity_dao_ext_impl }};
 
 import {{ env.java_package_entity_dao_ext }}.{{ table.class_name }}Dao;
 import {{ env.java_package_entity_dao_impl }}.Abstract{{ table.class_name }}DaoImpl;
-
 import javax.persistence.EntityManager;
 
 public class {{ table.class_name }}DaoImpl extends Abstract{{ table.class_name }}DaoImpl implements {{ table.class_name }}Dao {
-    public {{ table.class_name }}DaoImpl() {
-        super();
-    }
+  public {{ table.class_name }}DaoImpl() {
+    super();
+  }
 
-    public {{ table.class_name }}DaoImpl(EntityManager entityManager) {
-        super(entityManager);
-    }
+  public {{ table.class_name }}DaoImpl(EntityManager entityManager) {
+    super(entityManager);
+  }
 }
 

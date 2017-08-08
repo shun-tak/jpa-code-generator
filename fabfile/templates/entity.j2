@@ -1,18 +1,23 @@
 package {{ env.java_package_entity_ext }}.{{ table.package_name }};
 
 import {{ env.java_package_entity }}.Abstract{{ table.class_name }};
-import lombok.*;
-
-import javax.persistence.*;
 import java.time.ZonedDateTime;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Entity
 @Table(name = "{{ table.name }}")
 public class {{ table.class_name }} extends Abstract{{ table.class_name }} {
-    @Builder
-    public {{ table.class_name }}({% for column in table.columns %}{{ column.field_type }} {{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
-        super({% for column in table.columns %}{{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
-    }
+  @Builder
+  public {{ table.class_name }}(
+      {% for column in table.columns %}
+      {{ column.field_type }} {{ column.field_name }}{% if not loop.last %},
+      {% endif %}
+      {% endfor %}) {
+    super({% for column in table.columns %}{{ column.field_name }}{% if not loop.last %}, {% endif %}{% endfor %});
+  }
 }
 
