@@ -82,5 +82,19 @@ public abstract class AbstractDaoImpl<E> implements AbstractDao<E> {
   protected List<E> list(CriteriaQuery<E> criteriaQuery) {
     return getEntityManager().createQuery(Objects.requireNonNull(criteriaQuery)).getResultList();
   }
+
+  protected int update(CriteriaUpdate<E> criteriaUpdate) {
+    int rows =
+        getEntityManager().createQuery(Objects.requireNonNull(criteriaUpdate)).executeUpdate();
+    getEntityManager().flush();
+    return rows;
+  }
+
+  protected int delete(CriteriaDelete<E> criteriaDelete) {
+    int rows =
+        getEntityManager().createQuery(Objects.requireNonNull(criteriaDelete)).executeUpdate();
+    getEntityManager().flush();
+    return rows;
+  }
 }
 
