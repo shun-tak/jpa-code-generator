@@ -86,7 +86,7 @@ def _output_schema(mysql):
     # Options
     ignore_tables = ''
     for database in mysql['databases']:
-        ignore_tables += " --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK".format(database)
+        ignore_tables += " --ignore-table {0}.DATABASECHANGELOG --ignore-table {0}.DATABASECHANGELOGLOCK --ignore-table {0}.schema_version".format(database)
     opts = '--no-data --compact --quick --single-transaction' + ignore_tables
     databases = ' '.join(mysql['databases'])
 
