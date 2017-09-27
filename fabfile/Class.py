@@ -180,6 +180,7 @@ def _convert_to_java_type(_type):
     _boolean = re.compile('^tinyint\(1\)', re.IGNORECASE)
     _integer = re.compile('^(tinyint\([23]\)|smallint|mediumint|int)', re.IGNORECASE)
     _long = re.compile('^bigint', re.IGNORECASE)
+    _double = re.compile('^double', re.IGNORECASE)
     _string = re.compile('^varchar|^text', re.IGNORECASE)
     _datetime = re.compile('^datetime')
     _timestamp = re.compile('^timestamp')
@@ -192,6 +193,9 @@ def _convert_to_java_type(_type):
 
     if _long.match(_type):
         return "Long"
+
+    if _double.match(_type):
+        return "Double"
 
     if _string.match(_type):
         return "String"
